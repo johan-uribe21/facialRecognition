@@ -36,8 +36,26 @@ class App extends Component {
       box: {},
       route: 'signin',
       isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+      }
     }
-  }
+  };
+
+  loaduser = (data) => {
+    this.setState({user: { 
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        joined: data.joined
+      }})
+    console.log(data);
+  };
 
   calculateFaceLocation = (data) => {
     const faceBox = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -71,7 +89,24 @@ class App extends Component {
         "a403429f2ddf4b49b307e318f00e528b", 
         this.state.input
       )
-      .then( response => this.displayFaceBox (this.calculateFaceLocation(response)  ) )
+      .then( response => { 
+        if (response){
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              id: this.state.user.id
+            })
+          })
+          .then(res => res.json())
+          .then(count => {
+            //object to assign function allows us to update param without changing others
+            this.setState(Object.assign(this.state.user, {entries: count}))
+          })
+          
+        }
+        this.displayFaceBox (this.calculateFaceLocation(response))
+      })
       .catch( err => console.log(err) ) ;
         // there was an error
   }
@@ -90,11 +125,16 @@ class App extends Component {
     return (
       <div className="App">
         <Particles className = 'particles' params={particlesOptions} />
-        <Navigation isSignedIn={isSignedIn} onRouteChange = {this.onRouteChange} />
+        <Navigation 
+          isSignedIn={isSignedIn} 
+          onRouteChange = {this.onRouteChange} 
+          />
         {route === 'home' 
           ? <div>
               <Logo />
-              <Rank/>
+              <Rank 
+                name={this.state.user.name} 
+                entries={this.state.user.entries}/>
               <ImageLinkForm 
                 onInputChange={this.onInputChange} 
                 onButtonSubmit={this.onButtonSubmit}/>
@@ -102,8 +142,10 @@ class App extends Component {
             </div>
           : (
              route === 'signin'
-             ?<Signin onRouteChange = {this.onRouteChange}/>
-             :<Register onRouteChange = {this.onRouteChange}/>
+             ?<Signin onRouteChange = {this.onRouteChange} loadUser = {this.loaduser}/>
+             :<Register 
+              onRouteChange = {this.onRouteChange} 
+              loadUser = {this.loaduser}/>
           )
         }
       </div>

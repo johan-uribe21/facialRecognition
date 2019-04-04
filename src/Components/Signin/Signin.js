@@ -28,6 +28,7 @@ class Signin extends React.Component {
     })
       .then(response => response.json())
       .then(user => {
+        // checks if the server responded with an actual user before proceeding
         if (user.id){
           this.props.onRouteChange('home');
           this.props.loadUser(user);

@@ -8,13 +8,8 @@ import Rank from './Components/Rank/Rank';
 import Signin from './Components/Signin/Signin';
 import Register from './Components/Register/Register';
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai'
 // import { timingSafeEqual } from 'crypto';
  
-const app = new Clarifai.App({
-  apiKey: 'b59200e5e03144488902c88b98899af9'
- });
-
 const particlesOptions = {
     particles: {
       number:{
@@ -25,6 +20,21 @@ const particlesOptions = {
         }},
       
     }
+}
+
+const initialState = {
+  input: '',
+  imageURL:'',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: ''
+  }
 }
 
 class App extends Component {
@@ -84,11 +94,14 @@ class App extends Component {
     let input = this.state.input
     this.setState({imageURL: input});
     //console.log('submit', this.state.imageURL ) ;
-    app.models
-      .predict(
-        "a403429f2ddf4b49b307e318f00e528b", 
-        this.state.input
-      )
+      fetch('http://localhost:3000/imageurl', {
+        method: 'post',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          input: this.state.input
+        })
+      })
+      .then(response => response.json())
       .then( response => { 
         if (response){
           fetch('http://localhost:3000/image', {
@@ -103,8 +116,8 @@ class App extends Component {
             //object to assign function allows us to update param without changing others
             this.setState(Object.assign(this.state.user, {entries: count}))
           })
-          
-        }
+          .catch(console.log);
+          }
         this.displayFaceBox (this.calculateFaceLocation(response))
       })
       .catch( err => console.log(err) ) ;
@@ -113,7 +126,8 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if (route === 'signout'){
-      this.setState({isSignedIn: false})
+      // reset the state to the initial clear values on signout
+      this.setState(initialState);
     } else if (route === 'home'){
       this.setState({isSignedIn: true})
     }

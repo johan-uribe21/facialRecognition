@@ -1,3 +1,8 @@
+## Summary
+
+This application uses machine learning to detect faces in user provided images. The application features a RESTful API backend built with Node.js, and a PostgreSQL database used to securely store user information. User passwords are stored security using bcrypt hashing.  
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

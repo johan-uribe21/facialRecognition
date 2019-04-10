@@ -2,6 +2,18 @@
 
 This application uses machine learning to detect faces in user provided images. The application features a RESTful API backend built with Node.js, and a PostgreSQL database used to securely store user information. User passwords are stored security using bcrypt hashing.  
 
+## Instructions:
+
+Login/Registration: Upon opening the application, the user is brought to the login page. If the user is new, then the user must click on the ‘Register’ link on the upper-right-hand corner of the screen. The user must register using their name, email, and a password. When the user clicks the submit button, the user information is transferred via a POST request to a REST api I built using Node.js and Express. The server receives the POST request, uses the bcrypt library to create a hash of the password, then stores the name, email and password-hash in a PostgreSQL database I have running on Heroku. The password-hash keeps the user information secure in the event of a server breach.
+
+ 
+
+Main-Page: After registering, the user is brought to the main screen where the instructions for the application are listed. Users may paste an image url, such as https://media.coindesk.com/uploads/2017/01/rock-climbing-e1483475838567.jpg , into the input box located in the middle of the screen. After pressing the “Detect” button, the image is displayed below the input box, and a blue box is automatically drawn around the first human face in the picture. This is achieved through a fetch request to the Clarifai API, which uses a machine learning algorithm to detect human faces. The Clarifai API returns the coordinates of any detected faces, which the application uses to draw the face-detection-box around the face. Each time a user hits the “detect” button, the count of humans identified by the user is incremented by one.
+
+ 
+
+When the user is done testing the application with different images, the user may then sign-out.
+
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

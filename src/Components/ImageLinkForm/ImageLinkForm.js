@@ -5,7 +5,7 @@ const ImageLinkForm = ( {onInputChange, onButtonSubmit} ) => {
   return (
     <div>
       <p className = 'f3'>
-        {'This human detector uses machine learning to differentiate between human and non-human faces. Put it to the test! Submit an image url below. How many humans can you find?'}
+        {'This face detector uses machine learning to differentiate between human-like and non-human faces. Put it to the test! Submit an image url below. How many human-faces can you find?'}
       </p>
       <div className = 'center'>
         <div className = 'center form pa4 br3 shadow-5'>

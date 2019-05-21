@@ -54,9 +54,7 @@ class App extends Component {
   };
 
   findAllFaces = (data) => {
-    const allFaceBoxes = data.outputs[0].data.regions.map(face => this.calculateFaceLocation(face))
-    console.log('All face boxes',allFaceBoxes)
-    return allFaceBoxes; // an array box objects
+    return data.outputs[0].data.regions.map(face => this.calculateFaceLocation(face))
   };
 
   calculateFaceLocation = (faceData) => {

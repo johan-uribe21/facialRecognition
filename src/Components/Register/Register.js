@@ -23,7 +23,12 @@ class Register extends React.Component {
   };
 
   onSubmitRegister = () => {
-    fetch('https://vast-wildwood-78447.herokuapp.com/register', {
+    const localUrl = "http://localhost:5000";
+    const herokuUrl = "https://vast-wildwood-78447.herokuapp.com"
+    let url ='';
+    process.env.NODE_ENV==="development"? url = localUrl: url = herokuUrl;
+
+    fetch(url+'/register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({

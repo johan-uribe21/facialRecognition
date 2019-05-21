@@ -8,7 +8,6 @@ import Rank from './Components/Rank/Rank';
 import Signin from './Components/Signin/Signin';
 import Register from './Components/Register/Register';
 import Particles from 'react-particles-js';
-// import { timingSafeEqual } from 'crypto';
  
 const particlesOptions = {
     particles: {
@@ -17,15 +16,15 @@ const particlesOptions = {
         density: {
           enable: true,
           value_area: 800,
-        }},
-      
+        },
+      },
     }
-}
+};
 
 const initialState = {
   input: '',
   imageURL:'',
-  box: {},
+  boxes: {},
   route: 'signin',
   isSignedIn: false,
   user: {
@@ -34,26 +33,13 @@ const initialState = {
     email: '',
     entries: 0,
     joined: ''
-  }
-}
+  },
+};
 
 class App extends Component {
   constructor() {
     super();
-    this.state={
-      input: '',
-      imageURL:'',
-      box: {},
-      route: 'signin',
-      isSignedIn: false,
-      user: {
-        id: '',
-        name: '',
-        email: '',
-        entries: 0,
-        joined: ''
-      }
-    }
+    this.state=initialState
   };
 
   loaduser = (data) => {
@@ -63,12 +49,19 @@ class App extends Component {
         email: data.email,
         entries: data.entries,
         joined: data.joined
-      }})
+      }});
     console.log(data);
   };
 
-  calculateFaceLocation = (data) => {
-    const faceBox = data.outputs[0].data.regions[0].region_info.bounding_box;
+  findAllFaces = (data) => {
+    const allFaceBoxes = data.outputs[0].data.regions.map(face => this.calculateFaceLocation(face))
+    console.log('All face boxes',allFaceBoxes)
+    return allFaceBoxes; // an array box objects
+  };
+
+  calculateFaceLocation = (faceData) => {
+    //console.log('face data ', faceData);
+    const faceBox = faceData.region_info.bounding_box;
     const image = document.getElementById('inputImage')
     const width = Number(image.width);
     const height = Number(image.height);
@@ -80,31 +73,34 @@ class App extends Component {
     };
   };
 
-  displayFaceBox = (box) => {
-    console.log(box)
-    this.setState({box: box});
+  displayFaceBox = (boxes) => {
+    console.log('Face Boxes', boxes);
+    this.setState({boxes: boxes}); // what actually renders this?
   };
 
   onInputChange = (event) => {
     this.setState({input: event.target.value});
-    console.log(this.state.input)
-  }
+  };
  
   onButtonSubmit = () => {
     let input = this.state.input
     this.setState({imageURL: input});
-    //console.log('submit', this.state.imageURL ) ;
-      fetch('https://vast-wildwood-78447.herokuapp.com/imageurl', {
-        method: 'post',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          input: this.state.input
-        })
+    const localUrl = "http://localhost:5000";
+    const herokuUrl = "https://vast-wildwood-78447.herokuapp.com"
+    let url ='';
+    process.env.NODE_ENV==="development"?  url = localUrl: url = herokuUrl;
+
+    fetch(url+'/imageurl', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
       })
+    })
       .then(response => response.json())
       .then( response => { 
         if (response){
-          fetch('https://vast-wildwood-78447.herokuapp.com/image', {
+          fetch(url+'/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -118,24 +114,23 @@ class App extends Component {
           })
           .catch(console.log);
           }
-        this.displayFaceBox (this.calculateFaceLocation(response))
+        this.displayFaceBox (this.findAllFaces(response))
       })
-      .catch( err => console.log(err) ) ;
-        // there was an error
-  }
+      .catch( err => console.log(err) ) 
+  };
 
   onRouteChange = (route) => {
     if (route === 'signout'){
       // reset the state to the initial clear values on signout
       this.setState(initialState);
     } else if (route === 'home'){
-      this.setState({isSignedIn: true})
+      this.setState({isSignedIn: true});
     }
-    this.setState({route: route})
-  }
+    this.setState({route: route});
+  };
 
   render() {
-    const {isSignedIn, imageURL, route, box} =  this.state;
+    const {isSignedIn, imageURL, route, boxes} =  this.state;
     return (
       <div className="App">
         <Particles className = 'particles' params={particlesOptions} />
@@ -152,7 +147,7 @@ class App extends Component {
               <ImageLinkForm 
                 onInputChange={this.onInputChange} 
                 onButtonSubmit={this.onButtonSubmit}/>
-              <FaceRecognition box = {box}  imageURL={imageURL} />
+              <FaceRecognition boxes = {boxes}  imageURL={imageURL} />
             </div>
           : (
              route === 'signin'
@@ -165,6 +160,6 @@ class App extends Component {
       </div>
     );
   }
-}
+};
 
 export default App;

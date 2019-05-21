@@ -18,7 +18,13 @@ class Signin extends React.Component {
   };
 
   onSubmitSignIn = () => {
-    fetch('https://vast-wildwood-78447.herokuapp.com/signin', {
+    console.log('Process environment', process.env)
+    const localUrl = "http://localhost:5000"
+    const herokuUrl = "https://vast-wildwood-78447.herokuapp.com"
+    let url ='';
+    process.env.NODE_ENV==="development"? url = localUrl: url = herokuUrl;
+
+    fetch(url+'/signin', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
